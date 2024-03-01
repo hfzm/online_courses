@@ -28,7 +28,7 @@ const logout = () => {
 </script>
 
 <template>
-    <div>
+    <div :dir="`${locale == 'en' ? 'ltr' : 'rtl'}`">
         <Head :title="title" />
 
         <Banner />
@@ -72,8 +72,17 @@ const logout = () => {
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                    {{ $t('Dashboard') }}
                                 </NavLink>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end w-full sm:ms-6">
+                            <div class="ms-3 relative">
+                                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" v-model="locale" @change="changeLocale">
+                                    <option value="en">English</option>
+                                    <option value="ar">Arabic</option>
+                                </select>
                             </div>
                         </div>
 
@@ -297,7 +306,7 @@ const logout = () => {
             </nav>
 
             <div id="overlay" v-if="overlay" @click="showingSidebar = !showingSidebar; overlay = !overlay"></div>
-            <aside id="sidebar" :class="`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform sm:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${!showingSidebar ? '-translate-x-full' : ''}`" aria-label="Sidebar">
+            <aside id="sidebar" :class="`fixed top-0 ${locale == 'en' ? 'left-0' : 'right-0'} z-40 w-64 h-screen pt-20 transition-transform sm:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${!showingSidebar ? (locale == 'en' ? '-translate-x-full' : 'translate-x-full') : ''}`" aria-label="Sidebar">
                 <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
                     <ul class="space-y-2 font-medium">
                         <li>
@@ -310,7 +319,7 @@ const logout = () => {
                 </div>
             </aside>
             
-            <div class="sm:ml-64">
+            <div :class="`${locale == 'en' ? 'sm:ml-64' : 'sm:mr-64'}`">
                 <!-- Page Content -->
                 <main class="min-h-screen pt-16">
                     <!-- Page Heading -->
@@ -363,6 +372,19 @@ const logout = () => {
             return {
                 showingSidebar: false,
                 overlay: false,
+                locale: '',
+            }
+        },
+        mounted() {
+            this.locale = window.locale
+        },
+        methods: {
+            changeLocale(event) {
+                localStorage.setItem('locale', event.target.value);
+                window.$i18n.global.locale = event.target.value;
+                this.$root.$i18n.locale = event.target.value;
+                this.locale = event.target.value;
+                window.locale = event.target.value;
             }
         }
     }
